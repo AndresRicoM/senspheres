@@ -78,20 +78,20 @@ def d3_graph_net(population):
 	mlab.show()
 
 
-while True:
+#while True:
 
-    dataList = []
+dataList = []
 
-    with open("current_data.csv") as f:
-        current_data = current_data = f.readline()
-    current_data = re.sub('"', '', current_data)
+with open("current_data.csv") as f:
+    current_data = current_data = f.readline()
+current_data = re.sub('"', '', current_data)
 
-    for i in range(4):
-        indexingValue = current_data.find(']')
-        dataList.append(current_data[0:indexingValue+1])
-        current_data = current_data[(indexingValue+2):]
-    adjacencyNodes = {'Mother Node': set(dataList[1].strip('][').split(', ') )}
-    print(adjacencyNodes)
+for i in range(4):
+    indexingValue = current_data.find(']')
+    dataList.append(current_data[0:indexingValue+1])
+    current_data = current_data[(indexingValue+2):]
+adjacencyNodes = {'Mother Node': set(dataList[1].strip('][').split(', ') )}
+print(adjacencyNodes)
 
-    #flat_graph_net(adjacencyNodes, dataList[2])
-    d3_graph_net(adjacencyNodes)
+#flat_graph_net(adjacencyNodes, dataList[2])
+d3_graph_net(adjacencyNodes)
