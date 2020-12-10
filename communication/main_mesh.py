@@ -64,6 +64,8 @@ current_values = []
 last_time = time.time()
 now_time = 0
 
+file_2_write = str(datetime.datetime.now()) + '.csv'
+
 while True:
 
     try:
@@ -108,7 +110,7 @@ while True:
 
     #Check that all nodes are still connected!
     end_time = time.time()
-    if (end_time - last_time) > 5:
+    if (end_time - last_time) > 5: #Checks Node connections every 5 seconds.
         last_time = time.time()
         if not all(network_status):
             for i in range(len(network_status)):
@@ -117,7 +119,6 @@ while True:
                     current_values[i] = -1000
         reset_status(network_status)
 
-    file_2_write = 'main_data_base.csv'
     status_index = network_ids.index(ser_string[startValueIndex:endValueIndex])
     network_status[status_index] = True
     current_values[status_index] = get_value(ser_string)
@@ -125,7 +126,10 @@ while True:
 
     with open(file_2_write,"a") as f:
         writer = csv.writer(f,delimiter=",")
-        writer.writerow([datetime.datetime.now(), current_values[0:len(current_values)]])
+        writer.writerow([datetime.datetime.now(), network_ids , current_values])
+    with open('current_data.csv',"w") as f:
+        writer = csv.writer(f,delimiter=",")
+        writer.writerow([datetime.datetime.now(), network_ids , current_values])
 
 
     #if ser_string[0:6] == network_ids[0]:
