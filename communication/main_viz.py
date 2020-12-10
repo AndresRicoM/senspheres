@@ -28,12 +28,11 @@
     #
 
 # Andres Rico - MIT Media Lab - City Science Group - 2020 - aricom@mit.edu
-
+import matplotlib
+#matplotlib.use("tkAgg")
 import serial
 import time
 import csv
-import matplotlib
-matplotlib.use("tkAgg")
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
@@ -56,26 +55,26 @@ def flat_graph_net(nodes, online):
     #plt.close()
 
 def d3_graph_net(population):
-	mlab.options.offscreen = False
-	graph = nx.DiGraph(population)
-	fig = plt.figure()
-	pos = nx.random_layout(graph, dim=3)
-	#pos = nx.spring_layout(graph, dim=3, k=50)
-	xyz = np.array([pos[v] for v in sorted(graph)])
 
-	mlab.figure(1, bgcolor=(0, 0, 0))
-	mlab.clf()
-	pts = mlab.points3d(xyz[:, 0], xyz[:, 1], xyz[:, 2],
-	                    scale_factor=0.025,
-	                    scale_mode='none',
-	                    colormap='blue-red',
-	                    resolution=50)
+    mlab.options.offscreen = False
+    graph = nx.DiGraph(population)
+    fig = plt.figure()
+    pos = nx.random_layout(graph, dim=3)
+    #pos = nx.spring_layout(graph, dim=3, k=50)
+    xyz = np.array([pos[v] for v in sorted(graph)])
 
-	pts.mlab_source.dataset.lines = np.array(list(graph.edges()))
-	tube = mlab.pipeline.tube(pts, tube_radius=0.005)
-	mlab.pipeline.surface(tube, color=(1, 1, 1), opacity = .05)
+    mlab.figure(1, bgcolor=(0, 0, 0))
+    mlab.clf()
+    pts = mlab.points3d(xyz[:, 0], xyz[:, 1], xyz[:, 2],
+        scale_factor=0.025,
+        scale_mode='none',
+        colormap='blue-red',
+        resolution=50)
+    pts.mlab_source.dataset.lines = np.array(list(graph.edges()))
+    tube = mlab.pipeline.tube(pts, tube_radius=0.005)
+    mlab.pipeline.surface(tube, color=(1, 1, 1), opacity = .05)
 
-	mlab.show()
+    mlab.show()
 
 
 #while True:
@@ -90,8 +89,13 @@ for i in range(4):
     indexingValue = current_data.find(']')
     dataList.append(current_data[0:indexingValue+1])
     current_data = current_data[(indexingValue+2):]
-adjacencyNodes = {'Mother Node': set(dataList[1].strip('][').split(', ') )}
-print(adjacencyNodes)
+
+adjacencyList = set(dataList[1].strip('][').split(', '))
+adjacencyNodes = {'Mother Node': adjacencyList}
+
+
+adjacentNodesInts = {0: set(range(1,len(adjacencyList) +1 ))}
+#print(dataList)
 
 #flat_graph_net(adjacencyNodes, dataList[2])
-d3_graph_net(adjacencyNodes)
+#d3_graph_net(adjacentNodesInts)
