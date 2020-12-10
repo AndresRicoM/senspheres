@@ -35,66 +35,63 @@ import csv
 import matplotlib
 matplotlib.use("tkAgg")
 import matplotlib.pyplot as plt
+import networkx as nx
 import numpy as np
+import random
+import re
+from mayavi import mlab
 
-def get_temp(temp_string):
-    return float(temp_string[9:15])
+def flat_graph_net(nodes, online):
+	G = nx.DiGraph(nodes)
+	fig = plt.figure()
+	pos = nx.spring_layout(G)
+	#nx.draw_networkx_nodes(G,pos, node_size = 20, nodelist = online[0], node_color = 'xkcd:red', with_labels = True)
+	nx.draw_networkx_nodes(G,pos, node_size = 500, node_color = 'xkcd:green') #, nodelist = online[1]
+	nx.draw_networkx_edges(G,pos, edge_color = 'w', arrows = False)
+	fig.set_facecolor('xkcd:black')
+	plt.axis('off')
+    #fig.canvas.draw()
+    #fig.canvas.flush_events()
+	plt.show()
+    #plt.close()
 
-ser = serial.Serial('/dev/tty.usbserial-AR0K4YH6')
-ser.baudrate = 115200
-ser.flushInput()
+def d3_graph_net(population):
+	mlab.options.offscreen = False
+	graph = nx.DiGraph(population)
+	fig = plt.figure()
+	pos = nx.random_layout(graph, dim=3)
+	#pos = nx.spring_layout(graph, dim=3, k=50)
+	xyz = np.array([pos[v] for v in sorted(graph)])
 
-available_temp_nodes = []
-available_light_nodes = []
-received_temp = []
-received_light = []
+	mlab.figure(1, bgcolor=(0, 0, 0))
+	mlab.clf()
+	pts = mlab.points3d(xyz[:, 0], xyz[:, 1], xyz[:, 2],
+	                    scale_factor=0.025,
+	                    scale_mode='none',
+	                    colormap='blue-red',
+	                    resolution=50)
 
-plot_window = 20
-y_var = np.array(np.zeros([plot_window]))
+	pts.mlab_source.dataset.lines = np.array(list(graph.edges()))
+	tube = mlab.pipeline.tube(pts, tube_radius=0.005)
+	mlab.pipeline.surface(tube, color=(1, 1, 1), opacity = .05)
 
-plt.ion()
-fig, ax = plt.subplots()
-line, = ax.plot(y_var)
+	mlab.show()
 
 
 while True:
 
-    try:
-        ser_bytes = ser.readline()
-        ser_string = str(ser_bytes)
-        #print(ser_string)
-    except:
-        print("No Serial Available")
+    dataList = []
 
-    #Create network.
-    if ser_string[4] == 'L':
-        #Check if node is new
-        if not (int(ser_string[7]) in available_light_nodes):
-            print('New Light Node Has Connected! =) ')
-            print('Adding Node', ser_string[2:8], 'To Network...')
-            available_light_nodes.append(int(ser_string[7]))
-            print('Node has been added! =) ')
+    with open("current_data.csv") as f:
+        current_data = current_data = f.readline()
+    current_data = re.sub('"', '', current_data)
 
-    if ser_string[4] == 'T':
-        #print(get_temp(ser_string))
-        with open("test_data.csv","a") as f:
-            writer = csv.writer(f,delimiter=",")
-            writer.writerow([time.time(),get_temp(ser_string)])
+    for i in range(4):
+        indexingValue = current_data.find(']')
+        dataList.append(current_data[0:indexingValue+1])
+        current_data = current_data[(indexingValue+2):]
+    adjacencyNodes = {'Mother Node': set(dataList[1].strip('][').split(', ') )}
+    print(adjacencyNodes)
 
-        plt.style.use('dark_background')
-        y_var = np.append(y_var,get_temp(ser_string))
-        y_var = y_var[1:plot_window+1]
-        line.set_ydata(y_var)
-        ax.relim()
-        ax.autoscale_view()
-        fig.canvas.draw()
-        fig.canvas.flush_events()
-
-        if not (int(ser_string[7]) in available_light_nodes):
-            print('New Temperature Node Has Connected! =) ')
-            print('Adding Node', ser_string[2:8], 'To Network...')
-            available_light_nodes.append(int(ser_string[7]))
-            print('Node has been added! =) ')
-        #print('Temperature Node Connected')
-
-    #Check if node has been disconnected
+    #flat_graph_net(adjacencyNodes, dataList[2])
+    d3_graph_net(adjacencyNodes)

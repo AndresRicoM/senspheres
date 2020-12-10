@@ -126,10 +126,10 @@ while True:
 
     with open(file_2_write,"a") as f:
         writer = csv.writer(f,delimiter=",")
-        writer.writerow([datetime.datetime.now(), network_ids , current_values])
+        writer.writerow([[datetime.datetime.now()], network_ids , network_status, current_values])
     with open('current_data.csv',"w") as f:
         writer = csv.writer(f,delimiter=",")
-        writer.writerow([datetime.datetime.now(), network_ids , current_values])
+        writer.writerow([[datetime.datetime.now()], network_ids , network_status, current_values])
 
 
     #if ser_string[0:6] == network_ids[0]:
