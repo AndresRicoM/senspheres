@@ -54,7 +54,7 @@ def flat_graph_net(nodes, online):
 	plt.show()
     #plt.close()
 
-def d3_graph_net(population):
+def d3_graph_net(population, connectivity):
 
     mlab.options.offscreen = False
     graph = nx.DiGraph(population)
@@ -65,7 +65,9 @@ def d3_graph_net(population):
 
     mlab.figure(1, bgcolor=(0, 0, 0))
     mlab.clf()
+    print(connectivity)
     pts = mlab.points3d(xyz[:, 0], xyz[:, 1], xyz[:, 2],
+        connectivity,
         scale_factor=0.025,
         scale_mode='none',
         colormap='blue-red',
@@ -93,9 +95,11 @@ for i in range(4):
 adjacencyList = set(dataList[1].strip('][').split(', '))
 adjacencyNodes = {'Mother Node': adjacencyList}
 
-
+connectivityArray = set(dataList[2].strip('][').split(', '))
 adjacentNodesInts = {0: set(range(1,len(adjacencyList) +1 ))}
-#print(dataList)
+
+connectivityArray = np.array(dataList[2])
+#print(connectivityArray)
 
 #flat_graph_net(adjacencyNodes, dataList[2])
-#d3_graph_net(adjacentNodesInts)
+d3_graph_net(adjacentNodesInts, np.array(dataList[2]))
